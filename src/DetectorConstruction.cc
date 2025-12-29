@@ -67,6 +67,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4Material* matBe = nist->FindOrBuildMaterial("G4_Be");
   G4Material* matAir = nist->FindOrBuildMaterial("G4_AIR");
   G4Material* matVacuum = nist->FindOrBuildMaterial("G4_Galactic");
+  G4Material* matWater = nist->FindOrBuildMaterial("G4_WATER");
+  G4cout<<"WATER TEMP: "<<matWater->GetTemperature()<<G4endl;
 
   G4Material* Steel304 = new G4Material("Steel304", 8*g/cm3, ncomponents=3);
   Steel304->AddElement(Fe, 72*perCent);
@@ -86,6 +88,15 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   matInox->AddElement(Ni, 14.0*perCent);
   matInox->AddElement(Mo, 2.4*perCent);
   //*/
+
+  //D2O
+  G4Isotope* isoDeut = new G4Isotope("isoDeut", 1, 2, 2. * g/mole);
+  G4Element* elDeut = new G4Element("elDeut", "elDeut", 1);
+  elDeut->AddIsotope(isoDeut, 100.*perCent);
+
+  G4Material* matD2O = new G4Material("D2O", 1.1056 *g/cm3, ncomponents=2);
+  matD2O->AddElement(elDeut, 2);
+  matD2O->AddElement(O, 1);
 
 
   //Am241
@@ -187,10 +198,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   if (fworldType==-1)
   {
-    tankOuterRadius = 500 * cm;
-    tankHalfHeight = 500 * cm;
-    WorldSizeZ = tankHalfHeight;
-    WorldSizeXY = tankOuterRadius;
+    WorldSizeZ = 500 * cm;
+    WorldSizeXY = 500 * cm;
   }
 
 
@@ -382,12 +391,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
   //-- PLACEMENTS --//
-  if (fFluxScore)
-  {
-    new G4PVPlacement(0, G4ThreeVector({(fLayerNumber*mm)+tankOuterRadius+tankThickness+1*mm/2,0.,0.}), fluxLogic, "FluxSquare", WorldLog, false, 0, checkOverlaps);
-  }
-
-  if (fnoWaterBath>=1 and fnoWaterBath<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
+  if (fworldType>=1 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
   {
     //only source
     new G4PVPlacement(0, G4ThreeVector(), ContainLog, "Container", WorldLog, false, 0, checkOverlaps);
@@ -397,32 +401,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     else
       new G4PVPlacement(0, G4ThreeVector(), AbsorberLog, "AmBe", ContainLog, false, 0, checkOverlaps);
   }
-  else if (fnoWaterBath<=0)
-  {
-    //water tank
-    new G4PVPlacement(nullptr, G4ThreeVector(), plasticLog, "plasticTank", WorldLog, false, 0, checkOverlaps);
-    fWaterTank = new G4PVPlacement(nullptr, G4ThreeVector(), tankLog, "waterTank", WorldLog, false, 0, checkOverlaps);
-    if (fRadioIsotope!="USF")
-    {
-      //place source
-      new G4PVPlacement(0, G4ThreeVector(), ContainLog, "Container", tankLog, false, 0, checkOverlaps);
-      // Place the absorber inside the inner vacuum when using the X3 casing
-      if (fCasingSelection == 1 && X3VacLog)
-        new G4PVPlacement(0, G4ThreeVector({0,0,-X3ShiftZ}), AbsorberLog, "AmBe", IT3Log, false, 0, checkOverlaps);
-      else
-        new G4PVPlacement(0, G4ThreeVector(), AbsorberLog, "AmBe", ContainLog, false, 0, checkOverlaps);
-    }
-  }
 
   if (fAzimuthalScoring)//test for neutron spectrum perpendicular and vertical
   {
-    if (fnoWaterBath>=1 and fnoWaterBath<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
+    if (fworldType>=1 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
     {
       new G4PVPlacement(0, G4ThreeVector(), EnerSphereLogical, "EnerSphere", WorldLog, false, 0, checkOverlaps);
-    }
-    else if (fnoWaterBath<=0)
-    {
-      new G4PVPlacement(0, G4ThreeVector(), EnerSphereLogical, "EnerSphere", tankLog, false, 0, checkOverlaps);
     }
   }
 
@@ -439,7 +423,7 @@ void DetectorConstruction::ConstructSDandField()
 
 DetectorConstruction::~DetectorConstruction()
 {
-  delete fMessenger, fScoringVolume;
+  delete fMessenger;
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

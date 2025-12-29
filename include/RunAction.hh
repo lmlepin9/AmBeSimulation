@@ -40,8 +40,6 @@ public:
 
   void FillInitialNeutron(Double_t EnerNeutron)
     {fbranchEInitN = EnerNeutron;};
-  void FillValidity(Bool_t status)
-    {fbranchValid = status;};
   void RecordSecondaries(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
   void RecordSecondariesEmerging(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
 
@@ -58,6 +56,12 @@ public:
   void AddFissIon(std::vector<Int_t> mass){ fbranchFissIon = mass; };
   void AddFissNeut(std::vector<Double_t> ene){ fbranchFissNeut = ene; };
   void AddFissNeutEmerging(std::vector<Double_t> ene){ fbranchFissNeutEmerging = ene; };
+  void AddNeutronEmissionSpectrum(std::vector<Double_t> E, std::vector<ROOT::Math::XYZVectorD> ver)
+    {
+      fbranchNEmissionSpec = E;
+      fbranchNEmissionSpecVer = ver;
+    };
+
 
   //TreeUtils
   void TreeFill(G4int eventNumber);

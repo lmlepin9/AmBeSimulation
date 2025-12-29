@@ -17,9 +17,10 @@
 #include <G4SystemOfUnits.hh>
 #include <G4IonTable.hh>
 
-SteppingAction::SteppingAction(EventAction* eventAction, bool FissFragments, bool NeutronTracking, bool ScoreGamma, bool AzimuthalScoring)
+SteppingAction::SteppingAction(EventAction* eventAction, DetectorConstruction* detectorConstruction, bool FissFragments, bool NeutronTracking, bool ScoreGamma, bool AzimuthalScoring)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
+  fDetectorConstruction(detectorConstruction),
   fFissFragments(FissFragments),
   fNeutronTracking(NeutronTracking),
   fScoreGamma(ScoreGamma),
@@ -80,7 +81,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
       if (startVolumeName=="ContainerLogical")
       {
         //if (endVolumeName!="ContainerLogical" or endVolumeName!="AmBeLogical")//WARNING: Don't use, it gives more particles than actually beign created
-        if ((fWaterTankPresent and endVolumeName=="waterTankLogical") or (!fWaterTankPresent and endVolumeName=="WorldLogical"))
+        if (endVolumeName=="WorldLogical")
         {
           if(aTrack->GetParticleDefinition()->GetParticleName()=="neutron" and aTrack->GetCreatorProcess()->GetProcessName()!="nFissionHP")
           {
@@ -96,7 +97,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
     {
       if (startVolumeName=="ContainerLogical")
       {
-        if ((fWaterTankPresent and endVolumeName=="waterTankLogical") or (!fWaterTankPresent and endVolumeName=="WorldLogical"))
+        if (endVolumeName=="WorldLogical")
         {
           if(aTrack->GetParticleDefinition()->GetParticleName()=="gamma")
           {
@@ -141,7 +142,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   {
     if (particleName=="neutron")
     {
-      if (((fWaterTankPresent and startVolumeName=="waterTankLogical") or (!fWaterTankPresent and startVolumeName=="WorldLogical")) and endVolumeName=="EnerSphereLogical")
+      if (startVolumeName=="WorldLogical" and endVolumeName=="EnerSphereLogical")
       {
         //G4cout << "SteppingAction: Azimuthal Spectrum: scoring neutron"<<G4endl;
         fEventAction->AddNeutronEmissionSpectrum(aTrack->GetKineticEnergy(), aTrack->GetPosition());

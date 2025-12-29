@@ -265,7 +265,6 @@ void RunAction::ClearBranches()
 
   fbranchFissionProduct.clear();
   fbranchFissionProductMass.clear();
-  fDoseEnergy.clear();
 
   fEmergingNeutrons.clear();
 

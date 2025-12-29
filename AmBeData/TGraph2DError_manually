@@ -1,0 +1,42 @@
+void loadFile(TString filename, std::vector<double>& Z_array, std::vector<double>& X_array, std::vector<double>& Y_array, std::vector<double>& ex_array, std::vector<double>& ey_array){
+  std::ifstream file(filename);
+
+  if (!file.is_open())
+  {
+    std::cerr << "Error: Could not open file " << filename << std::endl;
+    return;
+  }
+
+  std::string line;
+  while (std::getline(file, line))
+  {
+    std::stringstream ss(line);
+    double Z, X, Y, ex, ey;
+
+    if (ss >> Z >> X >> Y >> ex >> ey)
+    {
+      Z_array.push_back(Z);
+      X_array.push_back(X);
+      Y_array.push_back(Y);
+      ex_array.push_back(ex);
+      ey_array.push_back(ey);
+    }
+    else
+    {
+      std::cerr << "Warning: Could not parse line: " << line << std::endl;
+    }
+  }
+
+  file.close();
+}
+
+std::vector<double> Z_array, X_array, Y_array, ex_array, ey_array, ez_array;
+
+loadFile("n0_ang_LAB.dat", Z_array, X_array, Y_array, ex_array, ey_array);
+
+for (int i=0; i<Z_array.size(); i++) ez_array.push_back(0);
+// Display loaded data
+TGraph2DErrors *tg = new TGraph2DErrors(Z_array.size(),&Z_array[0],&X_array[0],&Y_array[0],&ez_array[0],&ex_array[0],&ey_array[0]);
+
+
+

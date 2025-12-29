@@ -28,19 +28,19 @@ ActionInitialization::~ActionInitialization()
 void ActionInitialization::Build() const
 {
 
-  RunAction* theRunAction = new RunAction(fRank, fNumberOfThreads, fFissFragments, fInitialNeutrons, fRadioIsotope);
+  RunAction* theRunAction = new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring);
   SetUserAction(theRunAction);
 
-  PrimaryGeneratorAction* thePrimaryGenerator = new PrimaryGeneratorAction(theRunAction, fDetectorConstruction, fRadioIsotope);
+  PrimaryGeneratorAction* thePrimaryGenerator = new PrimaryGeneratorAction(theRunAction, fDetectorConstruction, fRadioIsotope, fNumberOfThreads);
   SetUserAction(thePrimaryGenerator);
 
-  EventAction* theEventAction = new EventAction(theRunAction, fFissFragments);
+  EventAction* theEventAction = new EventAction(theRunAction, fFissFragments, fNeutronTracking);
   SetUserAction(theEventAction);
 
-  TrackingAction* theTrackingAction = new TrackingAction(theEventAction, fFissFragments);
+  TrackingAction* theTrackingAction = new TrackingAction(theEventAction, fNeutronTracking, fFissFragments, fScoreGamma);
   SetUserAction(theTrackingAction);
 
-  SteppingAction* theSteppingAction = new SteppingAction(theEventAction, fFissFragments);
+  SteppingAction* theSteppingAction = new SteppingAction(theEventAction, fDetectorConstruction, fFissFragments, fNeutronTracking, fScoreGamma, fAzimuthalScoring);
   SetUserAction(theSteppingAction);
 
   StackingAction* theStackingAction = new StackingAction(theRunAction,theEventAction);
@@ -52,6 +52,6 @@ void ActionInitialization::Build() const
 void ActionInitialization::BuildForMaster() const
 {
   // By default, don't do anything. This applies only in MT mode:
-  SetUserAction(new RunAction(fRank, fNumberOfThreads, fFissFragments, fInitialNeutrons, fRadioIsotope));
+  SetUserAction(new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring));
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

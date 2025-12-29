@@ -13,7 +13,7 @@ class G4Material;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  //DetectorConstruction(G4int noWaterBath, G4String IsotopeString);
+  //DetectorConstruction(G4int worldType, G4String IsotopeString);
   DetectorConstruction();
 
   virtual ~DetectorConstruction();
@@ -25,10 +25,10 @@ public:
   void DetectorMessenger();
 
   G4Tubs* GetAmBeSolid() {return AbsorberSolid;};
-  G4int GetWaterStatus() {return fnoWaterBath;};
+  G4int GetWaterStatus() {return fworldType;};
   G4VPhysicalVolume* GetWaterTank() {return fWaterTank;};
 
-  void SetWaterBath(G4int noWaterBath) {fnoWaterBath=noWaterBath;};
+  void SetWaterBath(G4int worldType) {fworldType=worldType;};
   void SetIsotope(G4String IsotopeString) {fRadioIsotope=IsotopeString;};
   void SetCasing(G4int CasingSelection) {fCasingSelection=CasingSelection;};
   void SetAzimuthalScoring(G4bool AzimuthalScoring) {fAzimuthalScoring=AzimuthalScoring;};
@@ -39,7 +39,7 @@ protected:
 
 private:
   G4GenericMessenger* fMessenger = nullptr;
-  G4int fnoWaterBath = 0;
+  G4int fworldType = 0;
   G4String fRadioIsotope = "241Am";
   G4bool fAzimuthalScoring = false;
 

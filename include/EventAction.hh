@@ -62,6 +62,12 @@ public:
   void AddFissIon(G4int mass){ fFissIon.push_back(mass); };
   void AddFissNeut(G4double ene){ fFissNeut.push_back(ene); };
   void AddFissNeutEmerging(G4double ene){ fFissNeutEmerging.push_back(ene); };
+  void AddNeutronEmissionSpectrum(G4double KE, G4ThreeVector ver)
+    {
+      fNeutronEmissionSpectrum.push_back((Double_t)(KE/MeV));
+      fNeutronEmissionSpectrumVer.push_back((ROOT::Math::XYZVectorD)ver/mm);
+    };
+
 
   //Neutron Energy spectrum
   void ScoreEmergingNeutron(G4double KE)

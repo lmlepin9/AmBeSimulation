@@ -8,7 +8,7 @@
 class ActionInitialization : public G4VUserActionInitialization
 {
 public:
-  ActionInitialization(int rank, int NumberOfThreads, DetectorConstruction* detectorConstruction, bool FissFragments, G4String RadioIsotope, bool InitialNeutrons, bool ScoreGamma, bool AzimuthalScoring);
+  ActionInitialization(int rank, int NumberOfThreads, DetectorConstruction* detectorConstruction, bool FissFragments, bool NeutronTracking, G4String RadioIsotope, bool InitialNeutrons, bool ScoreGamma, bool AzimuthalScoring);
   ~ActionInitialization();
   //virtual ~ActionInitialization();
 

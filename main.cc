@@ -69,6 +69,7 @@ int main(int argc, char** argv)
    * 2 is world is of Water
    */
   G4bool FissFragments=false;
+  G4bool NeutronTracking=false;
   G4bool ScoreGamma=false;
   G4int Isotope = -1;
   G4String IsotopeString;
@@ -139,6 +140,10 @@ int main(int argc, char** argv)
       {
         FissFragments=true;
       }
+      else if (arg == "-nt" || arg == "--neutronTracking")
+      {
+        NeutronTracking=true;
+      }
       else if (arg == "-r" || arg == "--isotope")
       {
         if (arguments[i+1].length()>=6 and arguments[i+1].substr(0,6)=="Single")
@@ -160,6 +165,10 @@ int main(int argc, char** argv)
       {
         CasingSelection = std::stoi(arguments[i+1]);
         i++;
+      }
+      else if (arg == "-sg" || arg == "--scoregamma")
+      {
+        ScoreGamma=true;
       }
       else if (arg == "-ass" || arg == "--azimuthalSurfaceScoring")
       {
@@ -259,8 +268,6 @@ int main(int argc, char** argv)
   if (physName) G4cout <<"Setting up physics "<<physName<<G4endl;
   else G4cout<<"Setting up default PhysicsList"<<G4endl;
 
-  //Initialise Additional Units
-  AddUnits();
   //Set DetectorConstruction
   DetectorConstruction* fDetectorConstruction = new DetectorConstruction();
   fDetectorConstruction->SetWaterBath(noWaterBath);
@@ -270,7 +277,7 @@ int main(int argc, char** argv)
   runManager->SetUserInitialization(fDetectorConstruction);
 
   //-- Action Initialisation
-  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
+  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, NeutronTracking, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
   runManager->SetUserInitialization(fActionInitialization);
 
   if (MPI_)
