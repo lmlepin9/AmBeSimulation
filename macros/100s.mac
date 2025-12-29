@@ -2,6 +2,10 @@
 # to prove that the application works
 #
 # Run it using "./task macros/100s.mac"
+#/DetGeometry/CubicPhantomMaterial G4_BONE_COMPACT_ICRU
+#/DetGeometry/TallPhantomMaterial G4_BONE_COMPACT_ICRU
+#/DetGeometry/CubicPhantomMaterial G4_TISSUE_SOFT_ICRP
+#/DetGeometry/TallPhantomMaterial G4_TISSUE_SOFT_ICRP
 /run/initialize
 /process/had/particle_hp/produce_fission_fragment true
 /process/had/particle_hp/use_Wendt_fission_model true

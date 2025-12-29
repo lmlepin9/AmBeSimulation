@@ -2,6 +2,7 @@
 # to prove that the application works
 #
 # Run it using "./task macros/1s.mac"
+#/DetGeometry/geometry "test"
 /run/initialize
 /process/had/particle_hp/produce_fission_fragment true
 /process/had/particle_hp/use_Wendt_fission_model true
