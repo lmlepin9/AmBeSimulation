@@ -28,7 +28,8 @@ class Cartesian3D;
 class RunAction : public G4UserRunAction
 {
 public:
-  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool InitialNeutrons, G4String RadioIsotope);
+  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring);
+
 
   ~RunAction();
 
@@ -39,6 +40,8 @@ public:
 
   void FillInitialNeutron(Double_t EnerNeutron)
     {fbranchEInitN = EnerNeutron;};
+  void FillValidity(Bool_t status)
+    {fbranchValid = status;};
   void RecordSecondaries(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
   void RecordSecondariesEmerging(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
 
@@ -63,24 +66,22 @@ public:
     {fbranchValid = status;};
 
 
-  TGraph* GetgXS_0()
-    {return gXS_0;};
-  TGraph* GetgXS_1()
-    {return gXS_1;};
-  TGraph* GetgXS_2()
-    {return gXS_2;};
-  TGraph* Getgstopping()
-    {return gstopping;};
-  TGraph* GetgXS_t()
-    {return gXS_t;};
-  TGraph2DErrors* Getg_gs()
-    {return g_gs;};
-  TGraph2DErrors* Getgp()
-    {return gp;};
-  TGraph2DErrors* Getgpp()
-    {return gpp;};
+  TGraph* GetgXS_0() {return gXS_0;};
+  TGraph* GetgXS_1() {return gXS_1;};
+  TGraph* GetgXS_2() {return gXS_2;};
+  TGraph* GetgXS_3() {return gXS_3;};
+  TGraph* Getgstopping() {return gstopping;};
+  TGraph* GetgXS_t() {return gXS_t;};
+  //TGraph2DErrors* Getg_gs() {return g_gs;};
+  //TGraph2DErrors* Getgp() {return gp;};
+  //TGraph2DErrors* Getgpp() {return gpp;};
+  std::vector<TGraph*> Getg_gs() {return g_gs;};
+  std::vector<TGraph*> Getgp() {return gp;};
+  std::vector<TGraph*> Getgpp() {return gpp;};
+  std::vector<TGraph*> Getgppp() {return gppp;};
 
 private:
+  G4int fDBG = 0;
   G4GenericMessenger* fMessenger = nullptr;
 
   G4int fNumberOfThreads {-1};
@@ -88,6 +89,9 @@ private:
   G4int fRank = 0;
   G4bool fInitialNeutrons = false;
   G4String fRadioIsotope;
+  G4bool fScoreGamma = false;
+  G4bool fAzimuthalScoring = false;
+
 
   //PrimaryGenerator Neutron energy output
   Double_t fbranchEInitN {-1};
@@ -103,16 +107,20 @@ private:
   std::vector<Double_t> fbranchSecondaryGamma;
   std::vector<Double_t> fbranchSecondaryGammaEmerging;
   //FissionProducts
+  std::vector<std::string> fbranchFissionProduct;
+  std::vector<Double_t> fbranchFissionProductMass;
   std::vector<Int_t> fbranchFissIon;
   std::vector<Double_t> fbranchFissNeut;
   std::vector<Double_t> fbranchFissNeutEmerging;
-  std::vector<std::string> fbranchFissionProduct;
-  std::vector<Double_t> fbranchFissionProductMass;
+
   //Neutron Energy spectrum
   std::vector<Double_t> fEmergingNeutrons;
 
+  std::vector<Double_t> fbranchNEmissionSpec;
+  std::vector<ROOT::Math::XYZVectorD> fbranchNEmissionSpecVer;
+
   //Trees parameters
-  G4String FileOutName = "Be-Spectrum";
+  G4String FileOutName = "-Spectrum";
   G4String FileOutNameRank;
   G4int fThreadid {-10};
   std::vector <TFile*> fout {0};
@@ -122,14 +130,21 @@ private:
   TGraph *gXS_0;
   TGraph *gXS_1;
   TGraph *gXS_2;
+  TGraph *gXS_3;
   TGraph *gstopping;
   TGraph *gXS_t;
-  TGraph2DErrors *g_gs;
-  TGraph2DErrors *gp;
-  TGraph2DErrors *gpp;
   //AmBe Cross section loader
   TGraph2DErrors* loadAng(TString filename);
   void loadFile(TString filename, std::vector<double>& Z_array, std::vector<double>& X_array, std::vector<double>& Y_array, std::vector<double>& ex_array, std::vector<double>& ey_array);
+  std::vector<TGraph*> loadLegendre(TString filename);
+  //TGraph2DErrors *g_gs;
+  //TGraph2DErrors *gp;
+  //TGraph2DErrors *gpp;
+  std::vector<TGraph*> g_gs;
+  std::vector<TGraph*> gp;
+  std::vector<TGraph*> gpp;
+  std::vector<TGraph*> gppp;
+  Int_t legendrePolLimit = 8;
 
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

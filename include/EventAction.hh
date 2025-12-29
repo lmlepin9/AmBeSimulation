@@ -56,6 +56,9 @@ public:
       fTrackCreator.push_back({creatorproc,particlename});
     };
 
+  void FindFission(int eventnumber);
+  void FindParent(int eventnumber);
+
   void AddFissIon(G4int mass){ fFissIon.push_back(mass); };
   void AddFissNeut(G4double ene){ fFissNeut.push_back(ene); };
   void AddFissNeutEmerging(G4double ene){ fFissNeutEmerging.push_back(ene); };
@@ -96,6 +99,10 @@ private:
   std::vector<Int_t> fFissIon;
   std::vector<Double_t> fFissNeut;
   std::vector<Double_t> fFissNeutEmerging;
+
+  std::vector<Double_t> fNeutronEmissionSpectrum;
+  std::vector<ROOT::Math::XYZVectorD> fNeutronEmissionSpectrumVer;
+
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

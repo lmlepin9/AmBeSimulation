@@ -13,30 +13,47 @@ class G4Material;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction(G4String IsotopeString);
+  DetectorConstruction(G4int noWaterBath, G4String IsotopeString);
+  DetectorConstruction();
+
   virtual ~DetectorConstruction();
 
   void ConstructSDandField() override;
 
   virtual G4VPhysicalVolume* Construct() override;
-  G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
   void DetectorMessenger();
-  G4Tubs* GetAmBeSolid(){return AbsorberSolid;};
+
+  G4Tubs* GetAmBeSolid() {return AbsorberSolid;};
+  G4int GetWaterStatus() {return fnoWaterBath;};
+  G4VPhysicalVolume* GetWaterTank() {return fWaterTank;};
+
+  void SetWaterBath(G4int noWaterBath) {fnoWaterBath=noWaterBath;};
+  void SetIsotope(G4String IsotopeString) {fRadioIsotope=IsotopeString;};
+  void SetCasing(G4int CasingSelection) {fCasingSelection=CasingSelection;};
+  void SetAzimuthalScoring(G4bool AzimuthalScoring) {fAzimuthalScoring=AzimuthalScoring;};
+
 
 protected:
-    G4LogicalVolume*  fScoringVolume = nullptr;
+    //G4LogicalVolume*  fScoringVolume = nullptr;
 
 private:
   G4GenericMessenger* fMessenger = nullptr;
+  G4int fnoWaterBath = 0;
+  G4String fRadioIsotope = "241Am";
+  G4bool fAzimuthalScoring = false;
+
 
   G4bool fDebug;
-  G4String fRadioIsotope = "241Am";
 
   G4Tubs* ContainSolid = nullptr;
   G4LogicalVolume* ContainLog = nullptr;
   G4Tubs* AbsorberSolid = nullptr;
   G4LogicalVolume* AbsorberLog = nullptr;
+
+  G4VPhysicalVolume* fWaterTank = nullptr;
+  G4int fCasingSelection;
+
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

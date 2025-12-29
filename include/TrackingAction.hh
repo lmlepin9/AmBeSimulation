@@ -14,7 +14,7 @@ class EventAction;
 class TrackingAction : public G4UserTrackingAction {
 
 public:
-  TrackingAction(EventAction* EventAct, bool FissFragments);
+  TrackingAction(EventAction* EventAct, bool FissFragments, bool ScoreGamma);
   ~TrackingAction() override = default;
 
   void PreUserTrackingAction(const G4Track* aTrack) override;
@@ -23,7 +23,9 @@ public:
 
 private:
   EventAction* fEventAction = nullptr;
+  G4bool fDBG = false;
   G4bool fFissFragments = false;
+  G4bool fScoreGamma = false;
 
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

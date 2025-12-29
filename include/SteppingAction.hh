@@ -32,32 +32,47 @@
 
 #include <G4UserSteppingAction.hh>
 #include <globals.hh>
+#include <map>
+#include <set>
+
 
 #include <G4UnitsTable.hh>
 #include <G4SystemOfUnits.hh>
 
 class EventAction;
 class G4LogicalVolume;
+class G4Track;
+class DetectorConstruction;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-  SteppingAction(EventAction* eventAction, bool FissFragments);
+  SteppingAction(EventAction* eventAction, DetectorConstruction* fDetectorConstruction, bool FissFragments, bool ScoreGamma, bool AzimuthalScoring);
   virtual ~SteppingAction();
 
   //method from the base class
   virtual void UserSteppingAction(const G4Step*);
+  G4Track* GetVolumeParentTrack(const G4Step* aStep);
 
 
 private:
   EventAction* fEventAction = nullptr;
+  DetectorConstruction* fDetectorConstruction = nullptr;
   G4LogicalVolume* fScoringVolume;
   //parameters
   G4bool fFissFragments = false;
+  G4bool fScoreGamma = false;
+  G4bool fAzimuthalScoring = false;
+
+  //
+  G4int fnoWater = -1;
+  G4bool fWaterTankPresent = false;
+
   //settables
   G4bool fDBG;
   G4double fDecayLimit;
+
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
