@@ -62,7 +62,15 @@ int main(int argc, char** argv)
   G4bool interactive = false;
 
   G4int NumberOfThreads = 1;
-  G4bool FissFragments=false;
+  G4int noWaterBath = 0;
+  /*
+   * 0 is water bath
+   * 1 is no water
+   * 2 is world is of Water
+   */
+   G4bool FissFragments=false;
+  G4bool NeutronTracking=false;
+  G4bool ScoreGamma=false;
   G4int Isotope = -1;
   G4String IsotopeString;
   /*
@@ -70,8 +78,18 @@ int main(int argc, char** argv)
    * -1 Default
    * 0 AmBe
    * 1 ^{239}PuBe
+   * 2 SF for U
+   * 3 MonoEnergetic Neutrons
    */
   G4bool InitialNeutrons = false;
+  G4int CasingSelection = 0;
+  /*
+   * Casing selectot:
+   * 0 cylindrical approximation
+   * 1 X3 casing
+   */
+  G4bool AzimuthalScoring = false;
+
 
   // random engine
   CLHEP::MTwistEngine randomEngine;
@@ -90,6 +108,8 @@ int main(int argc, char** argv)
     for (int i = 1; i < argc; i++)
     {
       arguments.push_back(argv[i]);
+      //G4cout << "Argument " << i << ": " << arguments[i-1] << G4endl;
+
     }
   }
 
@@ -111,18 +131,44 @@ int main(int argc, char** argv)
         NumberOfThreads = std::stoi(arguments[i+1]);
         i++;
       }
+      else if (arg == "-nw" || arg == "--nowater")
+      {
+        noWaterBath = std::stoi(arguments[i+1]);
+        i++;
+      }
       else if (arg == "-ffs" || arg == "--fissionFragmentsScore")
       {
         FissFragments=true;
       }
+      else if (arg == "-nt" || arg == "--neutronTracking")
+      {
+        NeutronTracking=true;
+      }
       else if (arg == "-r" || arg == "--isotope")
       {
-        Isotope = std::stoi(arguments[i+1]);
+        if (arguments[i+1].length()>=6 and arguments[i+1].substr(0,6)=="Single")
+        {
+          Isotope = 3;
+          IsotopeString = arguments[i+1];
+        }
+        else
+        {
+          Isotope = std::stoi(arguments[i+1]);
+        }
         i++;
       }
       else if (arg == "-in" || arg == "--initialNeutrons")
       {
         InitialNeutrons = true;
+      }
+      else if (arg == "-cs" || arg == "--casing")
+      {
+        CasingSelection = std::stoi(arguments[i+1]);
+        i++;
+      }
+      else if (arg == "-ass" || arg == "--azimuthalSurfaceScoring")
+      {
+        AzimuthalScoring = true;
       }
       else
       {
@@ -135,6 +181,7 @@ int main(int argc, char** argv)
   }
   if (Isotope<=0) IsotopeString = "241Am";
   else if (Isotope==1) IsotopeString = "239Pu";
+  else if (Isotope==2) IsotopeString = "USF";
 
 
   // MPI session (G4MPIsession) instead of G4UIterminal
@@ -203,30 +250,38 @@ int main(int argc, char** argv)
   if(physName != "" && factory.IsReferencePhysList(physName))
   {
     physicsList = factory.GetReferencePhysList(physName);
+    std::cout << "Got physlist "<< physName << std::endl;
   }
-  /*
-  if (physicsList)
+  else if (physName != "" && !factory.IsReferencePhysList(physName))
   {
-    G4cout << "Going to register G4ParallelWorldPhysics" << G4endl;
-    physicsList->RegisterPhysics(new G4ParallelWorldPhysics("DetectorROGeometry"));
+    G4cerr << "Error: " << physName << " is not a valid physics list." << G4endl;
+    return 1;
   }
-  */
-  else
-  {
-    physicsList = new PhysicsList();
-    //physicsList = new QGSP_BERT_HP;
-    //physicsList = new QGSP_BERT_HPT;
-    //physicsList = new QGSP_BIC_HP;//BIC is for Binary light ion cascade, i.e. ahdronic 0-6GeV
-    //physicsList = new QGSP_BIC_HPT;
-  }
+  else if (physName=="")  physicsList = new PhysicsList();
+
+
   runManager->SetUserInitialization(physicsList);
   if (physName) G4cout <<"Setting up physics "<<physName<<G4endl;
   else G4cout<<"Setting up default PhysicsList"<<G4endl;
 
-  //-- Action Initialisation
-  DetectorConstruction* fDetectorConstruction = new DetectorConstruction(IsotopeString);
+  //Initialise Additional Units
+  AddUnits();
+  //Set DetectorConstruction
+  DetectorConstruction* fDetectorConstruction = new DetectorConstruction();
+  fDetectorConstruction->SetDetector(DetNumber);
+  fDetectorConstruction->SetLayer(LayerNumber);
+  fDetectorConstruction->SetCadmium(DetCadmium);
+  fDetectorConstruction->SetWaterBath(noWaterBath);
+  fDetectorConstruction->SetIsotope(IsotopeString);
+  fDetectorConstruction->SetFluxScorer(FluxScore);
+  fDetectorConstruction->SetDoseScorer(DoseCollection);
+  fDetectorConstruction->SetCasing(CasingSelection);
+  fDetectorConstruction->SetAzimuthalScoring(AzimuthalScoring);
   runManager->SetUserInitialization(fDetectorConstruction);
-  runManager->SetUserInitialization(new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, IsotopeString, InitialNeutrons));
+
+  //-- Action Initialisation
+  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, LayerNumber, DetNumber, DetCadmium, FissFragments, DoseCollection, NeutronTracking, FragmentTracking, FluxScore, DoseFilter, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
+  runManager->SetUserInitialization(fActionInitialization);
 
   if (MPI_)
   {
