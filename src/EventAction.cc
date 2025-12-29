@@ -11,9 +11,10 @@
 #include <G4SystemOfUnits.hh>
 #include <G4Event.hh>
 
-EventAction::EventAction(RunAction* runAction, bool FissFragments):
+EventAction::EventAction(RunAction* runAction, bool FissFragments, bool NeutronTracking):
   fRunAction(runAction),
-  fFissFragments(FissFragments)
+  fFissFragments(FissFragments),
+  fNeutronTracking(NeutronTracking)
 {
   fNeutronDetActivation = false;
   fDBG = false;
@@ -36,8 +37,13 @@ void EventAction::EndOfEventAction(const G4Event* event)
   fRunAction->RecordSecondaries(fListSecondaryNeutron,fListSecondaryElectron,fListSecondaryGamma);
   fRunAction->RecordSecondariesEmerging(fListSecondaryNeutronEmerging,fListSecondaryElectronEmerging,fListSecondaryGammaEmerging);
 
+  fRunAction->AddNeutronEmissionSpectrum(fNeutronEmissionSpectrum, fNeutronEmissionSpectrumVer);
+  fRunAction->FillEvent(fNeutronEnergy/keV);//detector energy - keV
+
+
   if (fFissFragments)
   {
+    FindFission(event->GetEventID()); //find fission fragments - saves to RunAction
     fRunAction->AddFissIon(fFissIon);
     fRunAction->AddFissNeut(fFissNeut);
     fRunAction->AddFissNeutEmerging(fFissNeutEmerging);
@@ -118,5 +124,9 @@ void EventAction::ClearVars()
   fFissIon.clear();
   fFissNeut.clear();
   fFissNeutEmerging.clear();
+
+  fNeutronEmissionSpectrum.clear();
+  fNeutronEmissionSpectrumVer.clear();
+
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

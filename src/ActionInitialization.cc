@@ -6,14 +6,18 @@
 #include "SteppingAction.hh"
 #include "StackingAction.hh"
 
-ActionInitialization::ActionInitialization(int rank, int NumberOfThreads, DetectorConstruction* detectorConstruction, bool FissFragments, G4String RadioIsotope, bool InitialNeutrons):
+ActionInitialization::ActionInitialization(int rank, int NumberOfThreads, DetectorConstruction* detectorConstruction, bool FissFragments, bool NeutronTracking, G4String RadioIsotope, bool InitialNeutrons, bool ScoreGamma, bool AzimuthalScoring):
   G4VUserActionInitialization(),
   fRank(rank),
   fNumberOfThreads(NumberOfThreads),
   fDetectorConstruction(detectorConstruction),
   fFissFragments(FissFragments),
+  fNeutronTracking(NeutronTracking),
   fRadioIsotope(RadioIsotope),
-  fInitialNeutrons(InitialNeutrons)
+  fInitialNeutrons(InitialNeutrons),
+  fScoreGamma(ScoreGamma),
+  fAzimuthalScoring(AzimuthalScoring)
+
 {}
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

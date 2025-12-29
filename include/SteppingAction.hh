@@ -48,7 +48,7 @@ class DetectorConstruction;
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-  SteppingAction(EventAction* eventAction, DetectorConstruction* fDetectorConstruction, bool FissFragments, bool ScoreGamma, bool AzimuthalScoring);
+  SteppingAction(EventAction* eventAction, DetectorConstruction* fDetectorConstruction, bool FissFragments, bool NeutronTracking, bool ScoreGamma, bool AzimuthalScoring);
   virtual ~SteppingAction();
 
   //method from the base class
@@ -67,11 +67,11 @@ private:
 
   //
   G4int fnoWater = -1;
-  G4bool fWaterTankPresent = false;
 
   //settables
   G4bool fDBG;
   G4double fDecayLimit;
+  G4bool fNeutronTracking;
 
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

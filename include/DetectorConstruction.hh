@@ -13,7 +13,7 @@ class G4Material;
 class DetectorConstruction : public G4VUserDetectorConstruction
 {
 public:
-  DetectorConstruction(G4int noWaterBath, G4String IsotopeString);
+  //DetectorConstruction(G4int noWaterBath, G4String IsotopeString);
   DetectorConstruction();
 
   virtual ~DetectorConstruction();

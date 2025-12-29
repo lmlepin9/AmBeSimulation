@@ -28,7 +28,7 @@ class Cartesian3D;
 class RunAction : public G4UserRunAction
 {
 public:
-  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring);
+  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool NeutronTracking, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring);
 
 
   ~RunAction();
@@ -86,6 +86,7 @@ private:
 
   G4int fNumberOfThreads {-1};
   G4bool fFissFragments = false;
+  G4bool fNeutronTracking = false;
   G4int fRank = 0;
   G4bool fInitialNeutrons = false;
   G4String fRadioIsotope;

@@ -68,8 +68,7 @@ int main(int argc, char** argv)
    * 1 is no water
    * 2 is world is of Water
    */
-   G4bool FissFragments=false;
-  G4bool NeutronTracking=false;
+  G4bool FissFragments=false;
   G4bool ScoreGamma=false;
   G4int Isotope = -1;
   G4String IsotopeString;
@@ -139,10 +138,6 @@ int main(int argc, char** argv)
       else if (arg == "-ffs" || arg == "--fissionFragmentsScore")
       {
         FissFragments=true;
-      }
-      else if (arg == "-nt" || arg == "--neutronTracking")
-      {
-        NeutronTracking=true;
       }
       else if (arg == "-r" || arg == "--isotope")
       {
@@ -268,19 +263,14 @@ int main(int argc, char** argv)
   AddUnits();
   //Set DetectorConstruction
   DetectorConstruction* fDetectorConstruction = new DetectorConstruction();
-  fDetectorConstruction->SetDetector(DetNumber);
-  fDetectorConstruction->SetLayer(LayerNumber);
-  fDetectorConstruction->SetCadmium(DetCadmium);
   fDetectorConstruction->SetWaterBath(noWaterBath);
   fDetectorConstruction->SetIsotope(IsotopeString);
-  fDetectorConstruction->SetFluxScorer(FluxScore);
-  fDetectorConstruction->SetDoseScorer(DoseCollection);
   fDetectorConstruction->SetCasing(CasingSelection);
   fDetectorConstruction->SetAzimuthalScoring(AzimuthalScoring);
   runManager->SetUserInitialization(fDetectorConstruction);
 
   //-- Action Initialisation
-  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, LayerNumber, DetNumber, DetCadmium, FissFragments, DoseCollection, NeutronTracking, FragmentTracking, FluxScore, DoseFilter, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
+  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
   runManager->SetUserInitialization(fActionInitialization);
 
   if (MPI_)

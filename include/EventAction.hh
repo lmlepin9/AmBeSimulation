@@ -35,7 +35,7 @@ class Cartesian3D;
 class EventAction : public G4UserEventAction
 {
 public:
-  EventAction(RunAction* runAction, bool FissFragments);
+  EventAction(RunAction* runAction, bool NeutronTracking, bool FissFragments);
   ~EventAction() override = default;
 
   void BeginOfEventAction(const G4Event* event) override;
@@ -76,6 +76,7 @@ private:
   G4bool fDBG;
   //parameters
   G4bool fFissFragments = false;
+  G4bool fNeutronTracking = false;
 
   G4bool fNeutronDetActivation;
 

@@ -19,6 +19,7 @@ public:
 private:
   G4int fNumberOfThreads { -1 };
   G4bool fFissFragments=false;
+  G4bool fNeutronTracking=false;
   G4int fRank = 0;
   G4String fRadioIsotope;
   G4bool fInitialNeutrons;
