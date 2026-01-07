@@ -43,5 +43,10 @@ Options list (as listed in main.cc)
 - `-i` `--interactive` -> enable GUI. Default OFF is options specified.
 - `-t` `--threads` -> Specify number of threads to use. If using MPI, this is the number of threads allocated to each node. DEFAULT 1.
 - `-ffs` `--fissionFragmentsScore` -> Enable scoring of fission fragments (neutrons and Ions). DEFAULT OFF.
-- `-r` `--isotope` -> Specify Neutron Source to use. 0 is AmBe, 1 is 239PuBe. DEFAULT AmBe.
+- `-r` `--isotope` -> Specify Neutron Source to use. 0 is AmBe, 1 is 239PuBe. DEFAULT AmBe. Can also be set to monoenergetic passing SingleX.YZ Where X.YZ is the energy in MeV.
 - `-in` `--initialNeutrons` -> Score initial neutrons from the Priamry Generator. DEFAULT OFF.
+- `-nw` `--nowater` -> Define is world is water or not (or other materials).
+- `-nt` `--neutronTracking` -> Selectively enable or disable neutron tracking scoring
+- `-cs` `--casing` -> Define Casing. 0 is cylindrical approximation, 1 is X3 casing.
+- `-sg` `--scoregamma` -> Add gamma scoring to resulting tree
+- `-ass` `--azimuthalSurfaceScoring` -> Score Azimuthal distirbution of outgoing neutrons.
