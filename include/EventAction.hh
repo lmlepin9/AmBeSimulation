@@ -7,6 +7,7 @@
 #include <vector>
 #include <math.h>
 #include <Math/Vector3D.h>
+#include <Math/Vector4D.h>
 
 #include <G4UserEventAction.hh>
 #include <G4ThreeVector.hh>
@@ -109,6 +110,14 @@ private:
 
   std::vector<Double_t> fNeutronEmissionSpectrum;
   std::vector<ROOT::Math::XYZVectorD> fNeutronEmissionSpectrumVer;
+
+  // Emerging particle record
+  std::vector<Int_t> fEmergingId;
+  std::vector<Int_t> fEmergingParentId;
+  std::vector<Int_t> fEmergingPDG;
+  std::vector<ROOT::Math::XYZTVector> fEmergingPos;
+  std::vector<ROOT::Math::XYZTVector> fEmergingP; 
+  std::vector<std::string> fEmergingProcess; 
 
 };
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

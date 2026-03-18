@@ -23,7 +23,7 @@ namespace
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool NeutronTracking, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring):
+RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool NeutronTracking, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring, bool SaveEmerging):
   G4UserRunAction(),
   fRank(rank),
   fNumberOfThreads(NumberOfThreads),
@@ -32,7 +32,8 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
   fInitialNeutrons(InitialNeutrons),
   fRadioIsotope(RadioIsotope),
   fScoreGamma(ScoreGamma),
-  fAzimuthalScoring(AzimuthalScoring)
+  fAzimuthalScoring(AzimuthalScoring),
+  fSaveEmerging(SaveEmerging)
 {
   //Messenger
   RunActionMessenger();
@@ -274,6 +275,14 @@ void RunAction::ClearBranches()
 
   fbranchNEmissionSpec.clear();
   fbranchNEmissionSpecVer.clear();
+
+  fbranchEmergingId.clear();
+  fbranchEmergingParentId.clear();
+  fbranchEmergingPDG.clear();
+  fbranchEmergingPos.clear();
+  fbranchEmergingP.clear(); 
+  fbranchEmergingProcess.clear(); 
+
 
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -63,8 +63,21 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
 
   G4LogicalVolume* endVolume = aStep->GetPostStepPoint()->GetTouchableHandle()->GetVolume()->GetLogicalVolume();
   G4String endVolumeName = endVolume->GetName();
-
   G4String particleName = aTrack->GetParticleDefinition()->GetParticleName();
+
+
+  /*
+    MY DEBUG STUFF
+    if(startVolumeName=="ContainerLogical"){
+    std::cout << "St: " << startVolumeName << std::endl;
+    std::cout << "End: " << endVolumeName << std::endl;
+    std::cout << "name: " << particleName << std::endl;
+    std::cout << "---" << std::endl;
+  }
+
+  
+  
+  */
 
   if (particleName=="neutron")
     if (startVolumeName=="ContainerLogical")

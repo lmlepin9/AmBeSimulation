@@ -28,7 +28,7 @@ class Cartesian3D;
 class RunAction : public G4UserRunAction
 {
 public:
-  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool NeutronTracking, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring);
+  RunAction(int rank, int fNumberOfThreads, bool FissFragments, bool NeutronTracking, bool InitialNeutrons, G4String RadioIsotope, bool ScoreGamma, bool AzimuthalScoring, bool SaveEmerging);
 
 
   ~RunAction();
@@ -96,6 +96,7 @@ private:
   G4String fRadioIsotope;
   G4bool fScoreGamma = false;
   G4bool fAzimuthalScoring = false;
+  G4bool fSaveEmerging = false;
 
 
   //PrimaryGenerator Neutron energy output
@@ -117,6 +118,17 @@ private:
   std::vector<Int_t> fbranchFissIon;
   std::vector<Double_t> fbranchFissNeut;
   std::vector<Double_t> fbranchFissNeutEmerging;
+
+
+  // Emerging particles
+    // Emerging particle record
+  std::vector<Int_t> fbranchEmergingId;
+  std::vector<Int_t> fbranchEmergingParentId;
+  std::vector<Int_t> fbranchEmergingPDG;
+  std::vector<ROOT::Math::XYZTVector> fbranchEmergingPos;
+  std::vector<ROOT::Math::XYZTVector> fbranchEmergingP; 
+  std::vector<std::string> fbranchEmergingProcess; 
+
 
   //Neutron Energy spectrum
   std::vector<Double_t> fEmergingNeutrons;

@@ -90,6 +90,9 @@ int main(int argc, char** argv)
    */
   G4bool AzimuthalScoring = false;
 
+  // To store emerging particles for posterior processing
+  G4bool SaveEmerging = false; 
+
 
   // random engine
   CLHEP::MTwistEngine randomEngine;
@@ -174,6 +177,11 @@ int main(int argc, char** argv)
       {
         AzimuthalScoring = true;
       }
+
+      else if (arg == "-sp" || arg == "--saveEmerging"){
+        SaveEmerging = true;
+      }
+
       else
       {
         if (!MPI_)
@@ -276,8 +284,16 @@ int main(int argc, char** argv)
   fDetectorConstruction->SetAzimuthalScoring(AzimuthalScoring);
   runManager->SetUserInitialization(fDetectorConstruction);
 
+
+  // Debug  --- Lmlepin
+
+  if(SaveEmerging){
+    G4cout << "[DEBUG]: Saving emerging particles" << G4endl;
+  }
+
+
   //-- Action Initialisation
-  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, NeutronTracking, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring);
+  ActionInitialization* fActionInitialization = new ActionInitialization(rank, actualNumberOfThreads, fDetectorConstruction, FissFragments, NeutronTracking, IsotopeString, InitialNeutrons, ScoreGamma, AzimuthalScoring, SaveEmerging);
   runManager->SetUserInitialization(fActionInitialization);
 
   if (MPI_)
