@@ -162,7 +162,7 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
 
   // We borrow this structure to store our emerging particles 
 
-  if(SaveEmerging){
+  if(fSaveEmerging){
       if (fRadioIsotope=="USF") EmergingFileOutNameRank = fRadioIsotope + EmergingFileOutName+"-N"+fRank;
       else if (fRadioIsotope.length()>=6 and fRadioIsotope.substr(0,6)=="Single") EmergingFileOutNameRank = fRadioIsotope + EmergingFileOutName+"-N"+fRank;
       else EmergingFileOutNameRank = fRadioIsotope.substr(3,5) + "Be" + EmergingFileOutName+"-N"+fRank;
@@ -176,7 +176,13 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
         fEmergingTree[fThreadid] = new TTree(TString("EmergingParticles"), "EmergingParticles");//TTree name
         fEmergingTree[fThreadid]->SetDirectory(fEmergingOut[fThreadid]);
 
-        fEmergingTree[fThreadid]->Branch("TrackID",&fbranchEmergingId);
+        fEmergingTree[fThreadid]->Branch("TrackId",&fbranchEmergingId);
+        fEmergingTree[fThreadid]->Branch("ParentId",&fbranchEmergingParentId);
+        fEmergingTree[fThreadid]->Branch("PDG",&fbranchEmergingPDG);
+        fEmergingTree[fThreadid]->Branch("Vertex",&fbranchEmergingPos);
+        fEmergingTree[fThreadid]->Branch("Momentum", &fbranchEmergingP);
+        fEmergingTree[fThreadid]->Branch("Process", &fbranchEmergingProcess);
+        
       }
   }
 
@@ -279,7 +285,7 @@ void RunAction::EndOfRunAction(const G4Run* run)
     G4cout<<"CLOSE"<<G4endl;
   }
 
-  if(fEmergingOut[fThreadid]!=0 && fThreadid!=-1){
+  if(fEmergingOut[fThreadid]!=0 && fThreadid!=-1 && fSaveEmerging){
     fEmergingOut[fThreadid]->cd();
     fEmergingTree[fThreadid]->Print();
     G4cout<<"Write"<<G4endl;
@@ -299,6 +305,10 @@ void RunAction::TreeFill(G4int eventNumber)//end of event
   {
     tree[fThreadid]->Fill();
     //G4cout<<"FILL "<<fThreadid<<"\t"<<tree[fThreadid]<<"\t"<<fout[fThreadid]<<G4endl;
+  }
+
+  if(fEmergingOut[fThreadid]!=0 && fSaveEmerging){
+    fEmergingTree[fThreadid]->Fill();
   }
   //reset variables
   ClearBranches();
