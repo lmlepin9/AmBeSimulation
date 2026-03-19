@@ -29,7 +29,7 @@ ActionInitialization::~ActionInitialization()
 void ActionInitialization::Build() const
 {
 
-  RunAction* theRunAction = new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring);
+  RunAction* theRunAction = new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring,fSaveEmerging);
   SetUserAction(theRunAction);
 
   PrimaryGeneratorAction* thePrimaryGenerator = new PrimaryGeneratorAction(theRunAction, fDetectorConstruction, fRadioIsotope, fNumberOfThreads);
@@ -53,6 +53,6 @@ void ActionInitialization::Build() const
 void ActionInitialization::BuildForMaster() const
 {
   // By default, don't do anything. This applies only in MT mode:
-  SetUserAction(new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring));
+  SetUserAction(new RunAction(fRank, fNumberOfThreads, fFissFragments, fNeutronTracking, fInitialNeutrons, fRadioIsotope, fScoreGamma, fAzimuthalScoring,fSaveEmerging));
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

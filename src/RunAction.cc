@@ -119,8 +119,8 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
   {
     G4cout<<"THREAD: "<<FileOutNameRank+"-T"+fThreadid+".root"<<G4endl;
     fout[fThreadid]=new TFile(FileOutNameRank+"-T"+fThreadid+".root","RECREATE");
-
     tree[fThreadid] = new TTree(TString("FullBath"), "FullBath");//TTree name
+    tree[fThreadid]->SetDirectory(fout[fThreadid]);
 
 
     if (true)
@@ -159,6 +159,31 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
     }
   }
 
+
+  // We borrow this structure to store our emerging particles 
+
+  if(SaveEmerging){
+      if (fRadioIsotope=="USF") EmergingFileOutNameRank = fRadioIsotope + EmergingFileOutName+"-N"+fRank;
+      else if (fRadioIsotope.length()>=6 and fRadioIsotope.substr(0,6)=="Single") EmergingFileOutNameRank = fRadioIsotope + EmergingFileOutName+"-N"+fRank;
+      else EmergingFileOutNameRank = fRadioIsotope.substr(3,5) + "Be" + EmergingFileOutName+"-N"+fRank;
+      fEmergingOut.resize(fNumberOfThreads);
+      fEmergingTree.resize(fNumberOfThreads);
+
+      if(fEmergingOut[fThreadid]==0)
+      {
+        G4cout<<"THREAD: "<<EmergingFileOutNameRank+"-T"+fThreadid+".root"<<G4endl;
+        fEmergingOut[fThreadid]=new TFile(EmergingFileOutNameRank+"-T"+fThreadid+".root","RECREATE");
+        fEmergingTree[fThreadid] = new TTree(TString("EmergingParticles"), "EmergingParticles");//TTree name
+        fEmergingTree[fThreadid]->SetDirectory(fEmergingOut[fThreadid]);
+
+        fEmergingTree[fThreadid]->Branch("TrackID",&fbranchEmergingId);
+      }
+  }
+
+
+
+
+
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -166,6 +191,7 @@ RunAction::~RunAction()
 {
   G4cout<<"Trying to close thread "<<fThreadid<<" for "<<fout[fThreadid]<<G4endl;
   if (fout[fThreadid]!=0) fout[fThreadid]->Close();
+  if (fEmergingOut[fThreadid]!=0) fEmergingOut[fThreadid]->Close();
 
   if (gXS_0) delete gXS_0;
   if (gXS_1) delete gXS_1;
@@ -192,6 +218,24 @@ RunAction::~RunAction()
       else G4cout << "Files merged but NOT removed" << G4endl;
     }
     else G4cout << "Files NOT merged - check manually" << G4endl;
+  }
+
+
+  // Merge emerging particles files 
+  if(IsMaster() && fSaveEmerging){
+    //Merge root files
+    G4String hadd_cmd = "hadd -f " + EmergingFileOutNameRank + ".root " + EmergingFileOutNameRank + "-T*.root";
+    G4cout << "Running hadd command" << hadd_cmd.c_str() << G4endl;
+    int haddFiles = system((hadd_cmd).c_str());
+
+    if (haddFiles==0)
+    {
+      int removeFiles = system(("rm -vf "+EmergingFileOutNameRank+"-T*.root").c_str());
+      if (removeFiles==0) G4cout << "Files merged and removed successfully" << G4endl;
+      else G4cout << "Files merged but NOT removed" << G4endl;
+    }
+    else G4cout << "Files NOT merged - check manually" << G4endl;
+
   }
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -228,11 +272,22 @@ void RunAction::EndOfRunAction(const G4Run* run)
   {
     //G4cout<<"FILL "<<fThreadid<<"\t"<<tree[fThreadid]<<"\t"<<fout[fThreadid]<<G4endl;
     //tree[fThreadid]->Fill();//Don't fill here as it would add an extra event
+    fout[fThreadid]->cd();
     tree[fThreadid]->Print();
     G4cout<<"Write"<<G4endl;
     tree[fThreadid]->Write();
     G4cout<<"CLOSE"<<G4endl;
   }
+
+  if(fEmergingOut[fThreadid]!=0 && fThreadid!=-1){
+    fEmergingOut[fThreadid]->cd();
+    fEmergingTree[fThreadid]->Print();
+    G4cout<<"Write"<<G4endl;
+    fEmergingTree[fThreadid]->Write();
+    G4cout<<"CLOSE"<<G4endl;
+  }
+
+
   ClearBranches();
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

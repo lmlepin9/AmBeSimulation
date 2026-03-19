@@ -20,6 +20,7 @@
 #include <TH1F.h>
 #include <TString.h>
 #include <Math/Vector3D.h>
+#include <Math/Vector4D.h>
 #include <TGraph2DErrors.h>
 
 class Cartesian3D;
@@ -142,6 +143,11 @@ private:
   G4int fThreadid {-10};
   std::vector <TFile*> fout {0};
   std::vector <TTree*> tree {0};
+
+  G4String EmergingFileOutName = "-EmergingParticles";
+  G4String EmergingFileOutNameRank;
+  std::vector <TFile*> fEmergingOut {0};
+  std::vector <TTree*> fEmergingTree {0};
 
   //AmBe Cross section data
   TGraph *gXS_0;
