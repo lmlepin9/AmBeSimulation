@@ -311,8 +311,8 @@ void RunAction::TreeFill(G4int eventNumber)//end of event
   }
 
   if(fEmergingOut[fThreadid]!=0 && fSaveEmerging){
-    fbranchEmergingRank.assign(fbranchEmergingId.size(), fRank);
-    fbranchEmergingThreadId.assign(fbranchEmergingId.size(), fThreadid);
+    fbranchEmergingRank = fRank ;
+    fbranchEmergingThreadId = fThreadid;
     fEmergingTree[fThreadid]->Fill();
   }
   //reset variables
@@ -346,9 +346,10 @@ void RunAction::ClearBranches()
   fbranchNEmissionSpec.clear();
   fbranchNEmissionSpecVer.clear();
 
-  fbranchEmergingRank.clear();
-  fbranchEmergingThreadId.clear();
-  fbranchEmergingEventId.clear();
+  fbranchEmergingRank = -1;
+  fbranchEmergingThreadId = -1;
+  fbranchEmergingEventId = -1;
+  
   fbranchEmergingId.clear();
   fbranchEmergingParentId.clear();
   fbranchEmergingPDG.clear();
@@ -384,7 +385,7 @@ void RunAction::RecordSecondariesEmerging(std::vector<Double_t> neutron, std::ve
 
 // FUNCTION TO STORE EMERGING PARTICLE DATA------------------------------
 
-void RunAction::RecordEmerging(std::vector<Int_t> EmergingEventId, std::vector<Int_t> EmergingId, std::vector<Int_t> EmergingParentId, std::vector<Int_t> EmergingPDG,
+void RunAction::RecordEmerging(Int_t EmergingEventId, std::vector<Int_t> EmergingId, std::vector<Int_t> EmergingParentId, std::vector<Int_t> EmergingPDG,
                       std::vector<ROOT::Math::XYZTVector> EmergingPos, std::vector<ROOT::Math::XYZTVector> EmergingP, std::vector<std::string> EmergingProcess){
      
     fbranchEmergingEventId = EmergingEventId;                    

@@ -53,8 +53,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
 
 
   if(fSaveEmerging){
-    fEmergingEventId.assign(fEmergingId.size(), event->GetEventID());
-    fRunAction->RecordEmerging(fEmergingEventId, fEmergingId,fEmergingParentId,fEmergingPDG,fEmergingPos,fEmergingP,fEmergingProcess);
+    fRunAction->RecordEmerging(event->GetEventID(), fEmergingId,fEmergingParentId,fEmergingPDG,fEmergingPos,fEmergingP,fEmergingProcess);
   }
 
 
