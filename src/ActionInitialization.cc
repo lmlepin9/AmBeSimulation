@@ -35,13 +35,13 @@ void ActionInitialization::Build() const
   PrimaryGeneratorAction* thePrimaryGenerator = new PrimaryGeneratorAction(theRunAction, fDetectorConstruction, fRadioIsotope, fNumberOfThreads);
   SetUserAction(thePrimaryGenerator);
 
-  EventAction* theEventAction = new EventAction(theRunAction, fFissFragments, fNeutronTracking);
+  EventAction* theEventAction = new EventAction(theRunAction, fFissFragments, fNeutronTracking, fSaveEmerging);
   SetUserAction(theEventAction);
 
   TrackingAction* theTrackingAction = new TrackingAction(theEventAction, fNeutronTracking, fFissFragments, fScoreGamma);
   SetUserAction(theTrackingAction);
 
-  SteppingAction* theSteppingAction = new SteppingAction(theEventAction, fDetectorConstruction, fFissFragments, fNeutronTracking, fScoreGamma, fAzimuthalScoring);
+  SteppingAction* theSteppingAction = new SteppingAction(theEventAction, fDetectorConstruction, fFissFragments, fNeutronTracking, fScoreGamma, fAzimuthalScoring, fSaveEmerging);
   SetUserAction(theSteppingAction);
 
   StackingAction* theStackingAction = new StackingAction(theRunAction,theEventAction);

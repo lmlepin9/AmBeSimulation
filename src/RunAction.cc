@@ -176,6 +176,9 @@ RunAction::RunAction(int rank, int NumberOfThreads, bool FissFragments, bool Neu
         fEmergingTree[fThreadid] = new TTree(TString("EmergingParticles"), "EmergingParticles");//TTree name
         fEmergingTree[fThreadid]->SetDirectory(fEmergingOut[fThreadid]);
 
+        fEmergingTree[fThreadid]->Branch("Rank", &fbranchEmergingRank);
+        fEmergingTree[fThreadid]->Branch("Thread", &fbranchEmergingThreadId);
+        fEmergingTree[fThreadid]->Branch("EventId", &fbranchEmergingEventId);
         fEmergingTree[fThreadid]->Branch("TrackId",&fbranchEmergingId);
         fEmergingTree[fThreadid]->Branch("ParentId",&fbranchEmergingParentId);
         fEmergingTree[fThreadid]->Branch("PDG",&fbranchEmergingPDG);
@@ -308,6 +311,8 @@ void RunAction::TreeFill(G4int eventNumber)//end of event
   }
 
   if(fEmergingOut[fThreadid]!=0 && fSaveEmerging){
+    fbranchEmergingRank.assign(fbranchEmergingId.size(), fRank);
+    fbranchEmergingThreadId.assign(fbranchEmergingId.size(), fThreadid);
     fEmergingTree[fThreadid]->Fill();
   }
   //reset variables
@@ -341,6 +346,9 @@ void RunAction::ClearBranches()
   fbranchNEmissionSpec.clear();
   fbranchNEmissionSpecVer.clear();
 
+  fbranchEmergingRank.clear();
+  fbranchEmergingThreadId.clear();
+  fbranchEmergingEventId.clear();
   fbranchEmergingId.clear();
   fbranchEmergingParentId.clear();
   fbranchEmergingPDG.clear();
@@ -350,6 +358,9 @@ void RunAction::ClearBranches()
 
 
 }
+
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RunAction::RecordSecondaries(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma)
@@ -366,6 +377,27 @@ void RunAction::RecordSecondariesEmerging(std::vector<Double_t> neutron, std::ve
   fbranchSecondaryElectronEmerging = electron;
   fbranchSecondaryGammaEmerging = gamma;
 }
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+
+
+// FUNCTION TO STORE EMERGING PARTICLE DATA------------------------------
+
+void RunAction::RecordEmerging(std::vector<Int_t> EmergingEventId, std::vector<Int_t> EmergingId, std::vector<Int_t> EmergingParentId, std::vector<Int_t> EmergingPDG,
+                      std::vector<ROOT::Math::XYZTVector> EmergingPos, std::vector<ROOT::Math::XYZTVector> EmergingP, std::vector<std::string> EmergingProcess){
+     
+    fbranchEmergingEventId = EmergingEventId;                    
+    fbranchEmergingId = EmergingId;
+    fbranchEmergingParentId = EmergingParentId;
+    fbranchEmergingPDG = EmergingPDG;
+    fbranchEmergingPos = EmergingPos;
+    fbranchEmergingP = EmergingP;
+    fbranchEmergingProcess = EmergingProcess; 
+
+
+}
+
+
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RunAction::loadFile(TString filename, std::vector<double>& Z_array, std::vector<double>& X_array, std::vector<double>& Y_array, std::vector<double>& ex_array, std::vector<double>& ey_array)

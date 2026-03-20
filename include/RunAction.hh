@@ -44,6 +44,15 @@ public:
   void RecordSecondaries(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
   void RecordSecondariesEmerging(std::vector<Double_t> neutron, std::vector<Double_t> electron, std::vector<Double_t> gamma);
 
+
+  void RecordEmerging(std::vector<Int_t> EmergingEventId,
+                      std::vector<Int_t> EmergingId,
+                      std::vector<Int_t> EmergingParentId,
+                      std::vector<Int_t> EmergingPDG,
+                      std::vector<ROOT::Math::XYZTVector> EmergingPos,
+                      std::vector<ROOT::Math::XYZTVector> EmergingP,
+                      std::vector<std::string> EmergingProcess);
+
   //Neutron Energy spectrum
   void RecordEmergingNeutrons(std::vector<Double_t> emergingNeutrons)
     {fEmergingNeutrons=emergingNeutrons;};
@@ -123,6 +132,9 @@ private:
 
   // Emerging particles
     // Emerging particle record
+  std::vector<Int_t> fbranchEmergingRank;
+  std::vector<Int_t> fbranchEmergingThreadId;
+  std::vector<Int_t> fbranchEmergingEventId;
   std::vector<Int_t> fbranchEmergingId;
   std::vector<Int_t> fbranchEmergingParentId;
   std::vector<Int_t> fbranchEmergingPDG;

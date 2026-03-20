@@ -12,6 +12,8 @@
 #include <G4UserEventAction.hh>
 #include <G4ThreeVector.hh>
 
+#include <G4Track.hh>
+#include <G4StepPoint.hh>
 
 #include <G4Gamma.hh>
 #include <G4Electron.hh>
@@ -36,7 +38,7 @@ class Cartesian3D;
 class EventAction : public G4UserEventAction
 {
 public:
-  EventAction(RunAction* runAction, bool NeutronTracking, bool FissFragments);
+  EventAction(RunAction* runAction, bool NeutronTracking, bool FissFragments, bool SaveEmerging);
   ~EventAction() override = default;
 
   void BeginOfEventAction(const G4Event* event) override;
@@ -49,6 +51,9 @@ public:
   //secondaries
   void AddSecondary(const G4ParticleDefinition*, G4double energy);
   void AddSecondaryEmerging(const G4ParticleDefinition*, G4double energy);
+
+  // My idea here:
+  void AddEmerging(const G4Track* thisTrack, const G4StepPoint* thisPostStep);
 
   //Fission process reconstruction
   void AddTrack(G4int parent, G4int track, G4String creatorproc, G4int atomicMass, G4String particlename)
@@ -84,8 +89,8 @@ private:
   //parameters
   G4bool fFissFragments = false;
   G4bool fNeutronTracking = false;
-
   G4bool fNeutronDetActivation;
+  G4bool fSaveEmerging = false;
 
 
   Double_t gammaEnergy=0.;
@@ -112,6 +117,7 @@ private:
   std::vector<ROOT::Math::XYZVectorD> fNeutronEmissionSpectrumVer;
 
   // Emerging particle record
+  std::vector<Int_t> fEmergingEventId;
   std::vector<Int_t> fEmergingId;
   std::vector<Int_t> fEmergingParentId;
   std::vector<Int_t> fEmergingPDG;

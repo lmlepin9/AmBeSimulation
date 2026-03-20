@@ -17,14 +17,15 @@
 #include <G4SystemOfUnits.hh>
 #include <G4IonTable.hh>
 
-SteppingAction::SteppingAction(EventAction* eventAction, DetectorConstruction* detectorConstruction, bool FissFragments, bool NeutronTracking, bool ScoreGamma, bool AzimuthalScoring)
+SteppingAction::SteppingAction(EventAction* eventAction, DetectorConstruction* detectorConstruction, bool FissFragments, bool NeutronTracking, bool ScoreGamma, bool AzimuthalScoring, bool SaveEmerging)
 : G4UserSteppingAction(),
   fEventAction(eventAction),
   fDetectorConstruction(detectorConstruction),
   fFissFragments(FissFragments),
   fNeutronTracking(NeutronTracking),
   fScoreGamma(ScoreGamma),
-  fAzimuthalScoring(AzimuthalScoring)
+  fAzimuthalScoring(AzimuthalScoring),
+  fSaveEmerging(SaveEmerging)
 {
   fDBG = false;
   fDecayLimit = 30*year;
@@ -78,6 +79,14 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   
   
   */
+
+
+  // Save emerging particles here 
+  if(fSaveEmerging && startVolumeName=="ContainerLogical" && endVolumeName=="WorldLogical"){
+      fEventAction->AddEmerging(aTrack, postPoint);
+  }
+
+
 
   if (particleName=="neutron")
     if (startVolumeName=="ContainerLogical")
