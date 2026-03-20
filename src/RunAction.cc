@@ -200,7 +200,7 @@ RunAction::~RunAction()
 {
   G4cout<<"Trying to close thread "<<fThreadid<<" for "<<fout[fThreadid]<<G4endl;
   if (fout[fThreadid]!=0) fout[fThreadid]->Close();
-  if (fEmergingOut[fThreadid]!=0) fEmergingOut[fThreadid]->Close();
+  if (fEmergingOut[fThreadid]!=0 && fSaveEmerging) fEmergingOut[fThreadid]->Close();
 
   if (gXS_0) delete gXS_0;
   if (gXS_1) delete gXS_1;
@@ -355,6 +355,7 @@ void RunAction::ClearBranches()
   fbranchEmergingPos.clear();
   fbranchEmergingP.clear(); 
   fbranchEmergingProcess.clear(); 
+  
 
 
 }
