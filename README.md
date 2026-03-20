@@ -50,3 +50,4 @@ Options list (as listed in main.cc)
 - `-cs` `--casing` -> Define Casing. 0 is cylindrical approximation, 1 is X3 casing.
 - `-sg` `--scoregamma` -> Add gamma scoring to resulting tree
 - `-ass` `--azimuthalSurfaceScoring` -> Score Azimuthal distirbution of outgoing neutrons.
+- `-sp`  `--SaveEmerging` -> Save data of all emerging particles. 
