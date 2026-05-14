@@ -395,8 +395,6 @@ void RunAction::RecordEmerging(Int_t EmergingEventId, std::vector<Int_t> Emergin
     fbranchEmergingPos = EmergingPos;
     fbranchEmergingP = EmergingP;
     fbranchEmergingProcess = EmergingProcess; 
-
-
 }
 
 

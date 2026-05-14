@@ -81,8 +81,26 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   */
 
 
-  // Save emerging particles here 
+  // Save emerging particles here
   if(fSaveEmerging && startVolumeName=="ContainerLogical" && endVolumeName=="WorldLogical"){
+    G4bool saveEmergingStep = true;
+
+    if (fDetectorConstruction->GetCasingSelection()==2)
+    {
+      G4ThreeVector postPos = postPoint->GetPosition();
+      G4double postR = std::sqrt(postPos.x()*postPos.x() + postPos.y()*postPos.y());
+      G4double postAbsZ = std::abs(postPos.z());
+
+      const G4double N02OuterRadius = 7.8*mm/2.;
+      const G4double N02HalfLength = 5.0*mm;
+      const G4double surfaceTolerance = 1.e-3*mm;
+
+      saveEmergingStep =
+        postR >= N02OuterRadius - surfaceTolerance ||
+        postAbsZ >= N02HalfLength - surfaceTolerance;
+    }
+
+    if (saveEmergingStep)
       fEventAction->AddEmerging(aTrack, postPoint);
   }
 

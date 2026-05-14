@@ -33,6 +33,63 @@
 
 G4long setUniqueSeed(int rank);
 
+void PrintUsage(const char* programName)
+{
+  G4cout
+    << "Usage: " << programName << " [options] [macro ...]\n\n"
+    << "Options:\n"
+    << "  -h, --help\n"
+    << "      Show this help message and exit.\n\n"
+    << "  -i, --interactive\n"
+    << "      Start an interactive Geant4 UI session. If no arguments are given,\n"
+    << "      this is enabled by default for non-MPI runs.\n\n"
+    << "  -t, --threads <N>\n"
+    << "      Set the number of Geant4 worker threads. Default: 1.\n\n"
+    << "  -nw, --nowater <MODE>\n"
+    << "      Select the world/water configuration:\n"
+    << "        0  air world / default source placement\n"
+    << "        1  no water\n"
+    << "        2  water world\n"
+    << "        3  D2O world\n\n"
+    << "  -r, --isotope <MODE>\n"
+    << "      Select source isotope or special source mode:\n"
+    << "       -1  default 241Am\n"
+    << "        0  241Am\n"
+    << "        1  239Pu\n"
+    << "        2  USF\n"
+    << "        Single<E_MeV>  monoenergetic neutron, e.g. Single2.45\n\n"
+    << "  -cs, --casing <MODE>\n"
+    << "      Select source casing geometry:\n"
+    << "        0  cylindrical approximation\n"
+    << "        1  X3 casing\n"
+    << "        2  N02 stainless steel capsule from AmBeHousing.gdml\n\n"
+    << "  -aom, --amO2MassMicrogram <UG>\n"
+    << "      Set a fixed AmO2/PuO2 oxide mass in micrograms for the active\n"
+    << "      material while keeping the default Be/oxide mass ratio. Values <= 0\n"
+    << "      use the default AmBe density and composition.\n\n"
+    << "  -in, --initialNeutrons\n"
+    << "      Store initial neutron information in the output.\n\n"
+    << "  -ffs, --fissionFragmentsScore\n"
+    << "      Enable fission-fragment scoring.\n\n"
+    << "  -nt, --neutronTracking\n"
+    << "      Enable neutron tracking diagnostics/scoring.\n\n"
+    << "  -sg, --scoregamma\n"
+    << "      Enable secondary gamma scoring.\n\n"
+    << "  -ass, --azimuthalSurfaceScoring\n"
+    << "      Enable azimuthal surface scoring.\n\n"
+    << "  -sp, --saveEmerging\n"
+    << "      Save emerging particle information.\n\n"
+    << "  macro\n"
+    << "      Any unrecognized non-MPI argument is treated as a Geant4 macro file\n"
+    << "      and executed with /control/execute.\n\n"
+    << "Environment:\n"
+    << "  AMBE_MPI=true|false\n"
+    << "      Enable MPI argument/session handling when true.\n"
+    << "  PHYSLIST=<name>\n"
+    << "      Use a Geant4 reference physics list instead of the default PhysicsList.\n"
+    << G4endl;
+}
+
 int main(int argc, char** argv)
 {
   setenv("QT_STYLE_OVERRIDE", "Fusion", 1);//Avoid Qt related segfault when using Breeze theme
@@ -87,8 +144,10 @@ int main(int argc, char** argv)
    * Casing selectot:
    * 0 cylindrical approximation
    * 1 X3 casing
+   * 2 N02 stainless steel capsule from AmBeHousing.gdml
    */
   G4bool AzimuthalScoring = false;
+  G4double AmO2MassMicrogram = -1.;
 
   // To store emerging particles for posterior processing
   G4bool SaveEmerging = false; 
@@ -113,6 +172,16 @@ int main(int argc, char** argv)
       arguments.push_back(argv[i]);
       //G4cout << "Argument " << i << ": " << arguments[i-1] << G4endl;
 
+    }
+  }
+
+  for (const auto& arg : arguments)
+  {
+    if (arg == "-h" || arg == "--help")
+    {
+      PrintUsage(argv[0]);
+      delete g4MPI;
+      return 0;
     }
   }
 
@@ -167,6 +236,11 @@ int main(int argc, char** argv)
       else if (arg == "-cs" || arg == "--casing")
       {
         CasingSelection = std::stoi(arguments[i+1]);
+        i++;
+      }
+      else if (arg == "-aom" || arg == "--amO2MassMicrogram")
+      {
+        AmO2MassMicrogram = std::stod(arguments[i+1]);
         i++;
       }
       else if (arg == "-sg" || arg == "--scoregamma")
@@ -281,6 +355,7 @@ int main(int argc, char** argv)
   fDetectorConstruction->SetWaterBath(noWaterBath);
   fDetectorConstruction->SetIsotope(IsotopeString);
   fDetectorConstruction->SetCasing(CasingSelection);
+  fDetectorConstruction->SetAmO2MassMicrogram(AmO2MassMicrogram);
   fDetectorConstruction->SetAzimuthalScoring(AzimuthalScoring);
   runManager->SetUserInitialization(fDetectorConstruction);
 

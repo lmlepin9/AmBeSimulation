@@ -8,6 +8,7 @@
 
 #include <G4Box.hh>
 #include <G4Tubs.hh>
+#include <G4Polycone.hh>
 #include <G4Sphere.hh>
 #include <G4Orb.hh>
 #include <G4UnionSolid.hh>
@@ -22,6 +23,7 @@
 #include <G4PSCellFlux.hh>
 #include <G4PSDoseDeposit.hh>
 
+#include <cmath>
 #include <sstream>
 
 //using namespace std;
@@ -129,24 +131,6 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   matPuO2->AddElement(elPu,natoms=1);
   matPuO2->AddElement(O,natoms=2);
 
-  //AmBe
-  G4double PerBe = .890326;
-  G4double PerAmO2 = 1-PerBe;
-  G4double densityAmBe = (1.848*PerBe+11.68*PerAmO2);//2.9265704g/cm3
-  G4double densityPuBe = (1.848*PerBe+11.5*PerAmO2);//2.9265704g/cm3
-
-  G4Material* matAmBe = new G4Material("AmBe", densityAmBe*g/cm3, ncomponents=2);
-  matAmBe->AddMaterial(matBe, PerBe*100*perCent);
-  if (fRadioIsotope=="241Am")
-    matAmBe->AddMaterial(matAmO2, PerAmO2*100*perCent);
-  else if (fRadioIsotope=="239Pu")
-    matAmBe->AddMaterial(matPuO2, PerAmO2*100*perCent);
-  else matAmBe->AddMaterial(matAmO2, PerAmO2*100*perCent);
-
-
-  //matAmBe->AddMaterial(matVacuum, PerAmO2*100*perCent);//TEST ONLY
-
-
   //--Colours
   //red
   G4VisAttributes* red = new G4VisAttributes(G4Colour::Red());
@@ -180,6 +164,93 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   G4double AbsorberRadius = 17.5*mm/2.;//X3 Specs
   G4double AbsorberLength = 17.5*mm;
   G4double ContainThickness = 2.4*mm;
+
+  if (fCasingSelection==2)
+  {
+    AbsorberRadius = 0.5*mm;
+    AbsorberLength = 0.13*mm;
+    // -----------------------------------------------------------------------------
+    // AmBe source model (Eckert & Ziegler N02 approximation)
+    //
+    // The active material is modeled as a compact homogeneous mixture of:
+    //
+    //   - 10.97 wt% AmO2
+    //   - 89.03 wt% Be
+    //
+    // corresponding to a Be:AmO2 mass ratio of approximately 8.1:1.
+    //
+    // The source nominal activity is 100 uCi of Am-241.
+    //
+    // Using the specific activity of Am-241 (~3.43 Ci/g), this corresponds to:
+    //
+    //   - ~29.2 ug of Am-241
+    //   - ~33.0 ug of AmO2
+    //   - ~267 ug of Be
+    //
+    // giving a total active mass of approximately:
+    //
+    //   m_total ~ 3.0e-4 g
+    //
+    // The active material is approximated as a cylindrical pellet with:
+    //
+    //   radius = 0.5 mm
+    //   height = 0.13 mm
+    //
+    // and an effective density:
+    //
+    //   rho = 2.9265704 g/cm3
+    //
+    // This density corresponds to a compacted porous AmBe pressed mixture.
+    //
+    // The active pellet is centered inside an N02-like stainless steel capsule
+    // approximated as:
+    //
+    //   diameter = 7.8 mm
+    //   length   = 10 mm
+    //
+    // Main neutron production reaction:
+    //
+    //   alpha + 9Be -> 12C* + n
+    //
+    // followed by:
+    //
+    //   12C* -> 12C + gamma(4.4 MeV)
+    //
+    // Typical neutron yield:
+    //
+    //   ~2e2 neutrons/s for a 100 uCi source
+    //
+    // This model is intended for detector-level neutron/gamma transport studies.
+    // Microscopic grain-scale AmO2/Be structure is not modeled.
+    // -----------------------------------------------------------------------------
+  }
+
+  //AmBe
+  G4double PerBe = .890326;
+  G4double PerAmO2 = 1-PerBe;
+  G4double densityAmBe = (1.848*PerBe+11.68*PerAmO2)*g/cm3;//2.9265704g/cm3
+
+  if (fAmO2MassMicrogram>0.)
+  {
+    G4double absorberVolume = std::acos(-1.)*AbsorberRadius*AbsorberRadius*AbsorberLength;
+    G4double amO2Mass = fAmO2MassMicrogram*1.e-6*g;
+    G4double totalMass = amO2Mass/PerAmO2;
+    densityAmBe = totalMass/absorberVolume;
+
+    G4cout << "Using fixed AmO2 mass: " << fAmO2MassMicrogram << " ug" << G4endl;
+    G4cout << "AmBe material mass fractions: Be=" << PerBe
+           << ", oxide=" << PerAmO2 << G4endl;
+  }
+
+  G4Material* matAmBe = new G4Material("AmBe", densityAmBe, ncomponents=2);
+  matAmBe->AddMaterial(matBe, PerBe*100*perCent);
+  if (fRadioIsotope=="241Am")
+    matAmBe->AddMaterial(matAmO2, PerAmO2*100*perCent);
+  else if (fRadioIsotope=="239Pu")
+    matAmBe->AddMaterial(matPuO2, PerAmO2*100*perCent);
+  else matAmBe->AddMaterial(matAmO2, PerAmO2*100*perCent);
+
+  //matAmBe->AddMaterial(matVacuum, PerAmO2*100*perCent);//TEST ONLY
 
   /*
   //absorber -- RUS/6137/S-96 IBN-241-15-4
@@ -355,6 +426,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   //AmBe Container selection
   // Logical for an inner vacuum when using the X3 casing
   G4LogicalVolume* X3VacLog = nullptr;
+  G4LogicalVolume* N02VacLog = nullptr;
 
   if (fCasingSelection==0)
   {
@@ -377,6 +449,28 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
     G4PVPlacement* IT3Phys = new G4PVPlacement(0, G4ThreeVector(0, 0, 0), IT3Log, "IT3", X3VacLog, false, 0, checkOverlaps);
     G4PVPlacement* IT4Phys = new G4PVPlacement(0, G4ThreeVector(0, 0, IT3_h1/2 + IT4_h1/2 - 2.5*mm), IT4Log, "IT4", X3VacLog, false, 0, checkOverlaps);
   }
+  else if (fCasingSelection==2)
+  {
+    const G4int N02NumZPlanes = 6;
+    G4double N02Z[N02NumZPlanes] =
+      {-5.0*mm, -4.0*mm, -3.9999*mm, 3.9999*mm, 4.0*mm, 5.0*mm};
+    G4double N02RInner[N02NumZPlanes] =
+      {0.0*mm, 0.0*mm, 6.8*mm/2., 6.8*mm/2., 0.0*mm, 0.0*mm};
+    G4double N02ROuter[N02NumZPlanes] =
+      {7.8*mm/2., 7.8*mm/2., 7.8*mm/2., 7.8*mm/2., 7.8*mm/2., 7.8*mm/2.};
+
+    G4VSolid* N02Solid = new G4Polycone("N02Solid",
+                                        0., 360.*deg,
+                                        N02NumZPlanes,
+                                        N02Z,
+                                        N02RInner,
+                                        N02ROuter);
+    ContainLog = new G4LogicalVolume(N02Solid, Steel304, "ContainerLogical");
+
+    G4VSolid* N02Vacuum = new G4Tubs("N02VacuumSolid",
+                                     0., 6.8*mm/2. - 1.e-6*mm, 3.999*mm, 0., 360.*deg);
+    N02VacLog = new G4LogicalVolume(N02Vacuum, matVacuum, "N02VacuumLogical");
+  }
   ContainLog->SetVisAttributes(yellow);
 
     //--Absorber (BeO)
@@ -391,20 +485,25 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
   //-- PLACEMENTS --//
-  if (fworldType>=1 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
+  if (fworldType>=0 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
   {
     //only source
+    std::cout << "Placing volumes now!" << std::endl;
     new G4PVPlacement(0, G4ThreeVector(), ContainLog, "Container", WorldLog, false, 0, checkOverlaps);
+    if (fCasingSelection == 2 && N02VacLog)
+      new G4PVPlacement(0, G4ThreeVector(), N02VacLog, "N02Vacuum", WorldLog, false, 0, checkOverlaps);
     // Place the absorber inside the inner vacuum when using the X3 casing
     if (fCasingSelection == 1 && X3VacLog)
       new G4PVPlacement(0, G4ThreeVector({0,0,-X3ShiftZ}), AbsorberLog, "AmBe", IT3Log, false, 0, checkOverlaps);
+    else if (fCasingSelection == 2 && N02VacLog)
+      new G4PVPlacement(0, G4ThreeVector(), AbsorberLog, "AmBe", N02VacLog, false, 0, checkOverlaps);
     else
       new G4PVPlacement(0, G4ThreeVector(), AbsorberLog, "AmBe", ContainLog, false, 0, checkOverlaps);
   }
 
   if (fAzimuthalScoring)//test for neutron spectrum perpendicular and vertical
   {
-    if (fworldType>=1 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
+    if (fworldType>=0 and fworldType<=3 and fRadioIsotope!="USF" and fRadioIsotope.substr(0,6)!="Single")
     {
       new G4PVPlacement(0, G4ThreeVector(), EnerSphereLogical, "EnerSphere", WorldLog, false, 0, checkOverlaps);
     }
@@ -432,6 +531,8 @@ void DetectorConstruction::DetectorMessenger()
   fMessenger = new G4GenericMessenger(this, "/AmBe/detector/", "Geometry control");
   fMessenger->DeclareProperty("Debug",fDebug);
   fMessenger->DeclareProperty("RadioIsotope",fRadioIsotope);
+  fMessenger->DeclareProperty("CasingSelection",fCasingSelection);
+  fMessenger->DeclareProperty("AmO2MassMicrogram",fAmO2MassMicrogram);
   fMessenger->DeclareProperty("AzimuthalScoring",fAzimuthalScoring);
 }
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

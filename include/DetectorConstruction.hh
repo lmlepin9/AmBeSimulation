@@ -26,11 +26,13 @@ public:
 
   G4Tubs* GetAmBeSolid() {return AbsorberSolid;};
   G4int GetWaterStatus() {return fworldType;};
+  G4int GetCasingSelection() {return fCasingSelection;};
   G4VPhysicalVolume* GetWaterTank() {return fWaterTank;};
 
   void SetWaterBath(G4int worldType) {fworldType=worldType;};
   void SetIsotope(G4String IsotopeString) {fRadioIsotope=IsotopeString;};
   void SetCasing(G4int CasingSelection) {fCasingSelection=CasingSelection;};
+  void SetAmO2MassMicrogram(G4double AmO2MassMicrogram) {fAmO2MassMicrogram=AmO2MassMicrogram;};
   void SetAzimuthalScoring(G4bool AzimuthalScoring) {fAzimuthalScoring=AzimuthalScoring;};
 
 
@@ -45,6 +47,7 @@ private:
 
 
   G4bool fDebug;
+  G4double fAmO2MassMicrogram = -1.;
 
   G4Tubs* ContainSolid = nullptr;
   G4LogicalVolume* ContainLog = nullptr;
